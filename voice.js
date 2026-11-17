@@ -77,11 +77,6 @@ window.startVoiceInput = function() {
 window.speak = function(text) {
     if (isPaused) return;
     
-    // Ensure all spoken replies are visible in the chat log
-    if (window.displayMessage) {
-        window.displayMessage(text, 'avatar');
-    }
-
     if (!synth) {
         if (window.showNotice) window.showNotice('Text-to-speech is not supported in this browser.');
         if (window.setAvatarState) window.setAvatarState('waiting');

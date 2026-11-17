@@ -1,13 +1,12 @@
-
 const questions = [
-    { key: "drink", text: "What drink would you like? Latte, Cappuccino, Americano, Espresso, or Coffee?" },
-    { key: "size", text: "What size would you like? Small, Medium, or Large?" },
-    { key: "milk", text: "What milk would you like? Regular, Oat, Almond, Soy, or None?" },
-    { key: "temperature", text: "Would you like it Hot or Iced?" },
-    { key: "extras", text: "Any extras? Vanilla, Caramel, Whipped Cream, or None?" },
-    { key: "quantity", text: "How many drinks would you like?" },
-    { key: "pickupTime", text: "What time would you like to pick up your order?" },
-    { key: "paymentMethod", text: "How would you like to pay? Cash, Debit, or Credit?" }
+    { key: "drink", text: "What drink would you like? Latte, Cappuccino, Americano, Espresso, or Coffee?", options: ["Latte", "Cappuccino", "Americano", "Espresso", "Coffee"] },
+    { key: "size", text: "What size would you like? Small, Medium, or Large?", options: ["Small", "Medium", "Large"] },
+    { key: "milk", text: "What milk would you like? Regular, Oat, Almond, Soy, or None?", options: ["Regular", "Oat", "Almond", "Soy", "None"] },
+    { key: "temperature", text: "Would you like it Hot or Iced?", options: ["Hot", "Iced"] },
+    { key: "extras", text: "Any extras? Vanilla, Caramel, Whipped Cream, or None?", options: ["Vanilla", "Caramel", "Whipped Cream", "None"] },
+    { key: "quantity", text: "How many drinks would you like?", options: ["1", "2", "3", "4", "5"] },
+    { key: "pickupTime", text: "What time would you like to pick up your order?", options: ["10 minutes", "20 minutes", "30 minutes", "1 hour"] },
+    { key: "paymentMethod", text: "How would you like to pay? For your security, I only need to know the method (Cash, Debit, or Credit), please do not share your card number.", options: ["Cash", "Debit", "Credit"] }
 ];
 
 const prices = {
@@ -37,6 +36,9 @@ function reply(text) {
 function askQuestion() {
     if (step < questions.length) {
         reply(questions[step].text);
+        if (typeof window.updateSuggestions === "function") {
+            window.updateSuggestions(questions[step].options);
+        }
     }
 }
 
@@ -108,6 +110,10 @@ function validateAnswer(key, text) {
 function showOrder() {
     calculateTotal();
     updateOrderSummary(order);
+    
+    if (typeof window.updateSuggestions === "function") {
+        window.updateSuggestions(["Confirm"]);
+    }
 
     reply(
         "Your order is ready for review! " +
@@ -135,7 +141,7 @@ window.handleUserInput = function(text) {
         );
 
         if (!field) {
-            reply("Please enter a field name such as drink, size, milk, temperature, extras, quantity, pickupTime, or paymentMethod.");
+            reply("Please enter a valid field name such as drink, size, milk, temperature, extras, quantity, pickupTime, or paymentMethod.");
             return;
         }
 
@@ -147,7 +153,10 @@ window.handleUserInput = function(text) {
 
     if (step >= questions.length && !correctionMode) {
         if (text.toLowerCase() === "confirm") {
-            reply("Thank you! Your order has been confirmed in this demo. No payment or real order was submitted.");
+            if (typeof window.updateSuggestions === "function") {
+                window.updateSuggestions([]);
+            }
+            reply("Thank you! Your order has been confirmed.");
         } else {
             reply("Type Confirm to finish, or click Change an answer.");
         }
@@ -158,8 +167,13 @@ window.handleUserInput = function(text) {
     const answer = validateAnswer(key, text);
 
     if (answer === null) {
-        reply("Sorry, I didn't understand that choice. Please try again.");
-        askQuestion();
+        // DYNAMIC ERROR RECOVERY: Restates the specific question and options instead of a generic failure.
+        reply("I didn't quite catch that. " + questions[step].text);
+        
+        // Refresh the visual suggestion buttons so the user knows exactly what to click or say
+        if (typeof window.updateSuggestions === "function" && questions[step].options) {
+            window.updateSuggestions(questions[step].options);
+        }
         return;
     }
 
@@ -197,6 +211,10 @@ window.beginCorrection = function() {
     correctionMode = true;
     waitingForField = false;
 
+    if (typeof window.updateSuggestions === "function") {
+        window.updateSuggestions(["Drink", "Size", "Milk", "Temperature", "Extras", "Quantity", "PickupTime", "PaymentMethod"]);
+    }
+
     reply("What would you like to change? Enter drink, size, milk, temperature, extras, quantity, pickupTime, or paymentMethod.");
 };
 
@@ -216,4 +234,5 @@ window.onPauseChanged = function(paused) {
     conversationPaused = paused;
 };
 
+// Initialize an empty order summary on load
 updateOrderSummary(order);
