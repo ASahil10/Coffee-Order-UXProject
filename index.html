@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Barista Bean | Your daily pause</title><link rel="stylesheet" href="style.css"></head>
+<body>
+<header><a class="brand" href="index.html"><span class="brand-icon" aria-hidden="true">b.</span> barista bean</a><span class="header-note">A little coffee. A better day.</span><span class="location">Campus café · Pickup</span></header>
+<main>
+<section class="intro"><p class="eyebrow">YOUR DAILY PAUSE</p><h1>Good coffee.<br>A conversation away.</h1><p>Tell Bean what you’re craving. We’ll take it from there.</p></section>
+<div class="workspace">
+<section class="assistant-card" aria-labelledby="bean-title">
+<div class="card-heading"><div><p class="eyebrow">MEET YOUR BARISTA</p><h2 id="bean-title">Hey, I’m Bean.</h2></div><span class="status" id="status" role="status">Ready to help</span></div>
+<div class="avatar-scene" id="avatar" data-state="waiting" role="img" aria-label="Bean, a smiling coffee cup barista"><div class="halo"></div><div class="steam steam-one"></div><div class="steam steam-two"></div><div class="cup"><div class="eyes"><i></i><i></i></div><div class="smile"></div><span class="cup-label">bean</span></div><div class="saucer"></div><span class="scene-note">Made with a little extra kindness.</span></div>
+<div class="conversation" id="conversation" role="log" aria-live="polite" aria-label="Conversation"></div>
+<div class="input-section"><div class="suggestions" aria-label="Suggested answers"><button type="button" data-answer="Coffee">Coffee</button><button type="button" data-answer="Latte">Latte</button><button type="button" data-answer="Cappuccino">Cappuccino</button></div>
+<form id="message-form"><label class="sr-only" for="message-input">Your message to Bean</label><input id="message-input" placeholder="Type your answer here…" maxlength="500" autocomplete="off" required><button class="mic" id="mic-button" type="button" aria-label="Start voice input">🎙</button><button class="send" type="submit">Send <span aria-hidden="true">↗</span></button></form>
+<div class="input-footer"><span>Type or use your microphone</span><button type="button" id="repeat-button">Repeat response</button></div><p class="notice" id="notice" role="status">Interface preview: ordering and voice features will be connected by your team.</p></div>
+</section>
+<aside><section class="summary-card"><p class="eyebrow">CRAFTED FOR YOU</p><h2>Your order</h2><p class="summary-intro">Your choices will appear here as we chat.</p><div id="order-details"></div><div class="total"><span>Estimated total</span><strong id="order-total">—</strong></div><p class="fineprint">Review your order before confirming. No payment is collected in this prototype.</p><button class="secondary" id="change-button" type="button">Change an answer</button></section>
+<section class="how-card"><span class="small-icon" aria-hidden="true">✦</span><h3>Your coffee, your way.</h3><p>Choose your drink, make it yours, then review and confirm.</p><div class="steps"><span>01 Choose</span><span>02 Customize</span><span>03 Review</span></div></section>
+<div class="utilities"><button type="button" id="pause-button" aria-pressed="false">Pause</button><button type="button" id="restart-button">Start over</button></div></aside>
+</div><footer>Freshly brewed conversations.<span>SOFE 4850 · Coffee ordering prototype</span></footer>
+</main><dialog id="restart-dialog"><h2>Start a fresh conversation?</h2><p>This will clear the messages and current order.</p><div><button id="cancel-restart" class="secondary">Keep chatting</button><button id="confirm-restart" class="send">Start over</button></div></dialog>
+<script src="interface.js"></script></body></html>
