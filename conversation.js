@@ -1,5 +1,5 @@
 const questions = [
-    { key: "drink", text: "What drink would you like? Latte, Cappuccino, Americano, Espresso, or Coffee?", options: ["Latte", "Cappuccino", "Americano", "Espresso", "Coffee"] },
+    { key: "drink", text: "Hello! I am Barista Bean. I can help you order your coffee using voice or text. What drink would you like? Latte, Cappuccino, Americano, Espresso, or Coffee?", options: ["Latte", "Cappuccino", "Americano", "Espresso", "Coffee"] },
     { key: "size", text: "What size would you like? Small, Medium, or Large?", options: ["Small", "Medium", "Large"] },
     { key: "milk", text: "What milk would you like? Regular, Oat, Almond, Soy, or None?", options: ["Regular", "Oat", "Almond", "Soy", "None"] },
     { key: "temperature", text: "Would you like it Hot or Iced?", options: ["Hot", "Iced"] },
@@ -9,13 +9,7 @@ const questions = [
     { key: "paymentMethod", text: "How would you like to pay? For your security, I only need to know the method (Cash, Debit, or Credit), please do not share your card number.", options: ["Cash", "Debit", "Credit"] }
 ];
 
-const prices = {
-    Coffee: 2.50,
-    Latte: 4.50,
-    Cappuccino: 4.00,
-    Americano: 3.00,
-    Espresso: 2.75
-};
+const prices = { Coffee: 2.50, Latte: 4.50, Cappuccino: 4.00, Americano: 3.00, Espresso: 2.75 };
 
 let order = {};
 let step = 0;
@@ -25,12 +19,8 @@ let conversationPaused = false;
 
 function reply(text) {
     if (conversationPaused) return;
-
-    displayMessage(text, "avatar");
-
-    if (typeof window.speak === "function") {
-        window.speak(text);
-    }
+    if (window.displayMessage) window.displayMessage(text, "avatar");
+    if (typeof window.speak === "function") window.speak(text);
 }
 
 function askQuestion() {
@@ -43,27 +33,13 @@ function askQuestion() {
 }
 
 function calculateTotal() {
-    if (!order.drink || !order.size) {
-        delete order.total;
-        return;
-    }
-
+    if (!order.drink || !order.size) { delete order.total; return; }
     let price = prices[order.drink];
-
     if (order.size === "Medium") price += 0.50;
     if (order.size === "Large") price += 1.00;
-
-    if (["Oat", "Almond", "Soy"].includes(order.milk)) {
-        price += 0.75;
-    }
-
-    if (order.extras && order.extras !== "None") {
-        price += 0.50;
-    }
-
-    order.total = Number(
-        (price * (order.quantity || 1)).toFixed(2)
-    );
+    if (["Oat", "Almond", "Soy"].includes(order.milk)) price += 0.75;
+    if (order.extras && order.extras !== "None") price += 0.50;
+    order.total = Number((price * (order.quantity || 1)).toFixed(2));
 }
 
 function validateAnswer(key, text) {
@@ -77,74 +53,38 @@ function validateAnswer(key, text) {
     };
 
     if (choices[key]) {
-        const answer = choices[key].find(
-            choice => choice.toLowerCase() === text.toLowerCase()
-        );
-
-        return answer || null;
+        return choices[key].find(choice => choice.toLowerCase() === text.toLowerCase()) || null;
     }
-
     if (key === "quantity") {
         const number = Number(text);
-
-        if (Number.isInteger(number) && number >= 1 && number <= 20) {
-            return number;
-        }
-
-        return null;
+        return (Number.isInteger(number) && number >= 1 && number <= 20) ? number : null;
     }
-
     if (key === "pickupTime") {
         const value = text.trim();
-
-        if (value.length >= 2 && value.length <= 50) {
-            return value;
-        }
-
-        return null;
+        return (value.length >= 2 && value.length <= 50) ? value : null;
     }
-
     return null;
 }
 
 function showOrder() {
     calculateTotal();
-    updateOrderSummary(order);
-    
-    if (typeof window.updateSuggestions === "function") {
-        window.updateSuggestions(["Confirm"]);
-    }
+    if (window.updateOrderSummary) window.updateOrderSummary(order);
+    if (typeof window.updateSuggestions === "function") window.updateSuggestions(["Confirm"]);
 
-    reply(
-        "Your order is ready for review! " +
-        order.quantity + " " + order.size + " " +
-        order.drink + "(s), with " + order.milk +
-        " milk, " + order.temperature +
-        ", extras: " + order.extras +
-        ". Pickup: " + order.pickupTime +
-        ". Payment: " + order.paymentMethod +
-        ". Estimated total: $" + order.total.toFixed(2) +
-        " CAD. Type Confirm to finish, or use Change an answer."
-    );
+    reply(`Your order is ready for review! ${order.quantity} ${order.size} ${order.drink}(s), with ${order.milk} milk, ${order.temperature}, extras: ${order.extras}. Pickup: ${order.pickupTime}. Payment: ${order.paymentMethod}. Estimated total: $${order.total.toFixed(2)} CAD. Type Confirm to finish, or use Change an answer.`);
 }
 
 window.handleUserInput = function(text) {
     if (conversationPaused) return;
-
     text = String(text).trim();
-
     if (!text) return;
 
     if (correctionMode && !waitingForField) {
-        const field = questions.find(
-            question => question.key.toLowerCase() === text.toLowerCase()
-        );
-
+        const field = questions.find(q => q.key.toLowerCase() === text.toLowerCase());
         if (!field) {
             reply("Please enter a valid field name such as drink, size, milk, temperature, extras, quantity, pickupTime, or paymentMethod.");
             return;
         }
-
         step = questions.indexOf(field);
         waitingForField = true;
         askQuestion();
@@ -153,10 +93,8 @@ window.handleUserInput = function(text) {
 
     if (step >= questions.length && !correctionMode) {
         if (text.toLowerCase() === "confirm") {
-            if (typeof window.updateSuggestions === "function") {
-                window.updateSuggestions([]);
-            }
-            reply("Thank you! Your order has been confirmed.");
+            if (typeof window.updateSuggestions === "function") window.updateSuggestions([]);
+            reply("Thank you! Your order has been confirmed in this demo.");
         } else {
             reply("Type Confirm to finish, or click Change an answer.");
         }
@@ -167,10 +105,7 @@ window.handleUserInput = function(text) {
     const answer = validateAnswer(key, text);
 
     if (answer === null) {
-        // DYNAMIC ERROR RECOVERY: Restates the specific question and options instead of a generic failure.
         reply("I didn't quite catch that. " + questions[step].text);
-        
-        // Refresh the visual suggestion buttons so the user knows exactly what to click or say
         if (typeof window.updateSuggestions === "function" && questions[step].options) {
             window.updateSuggestions(questions[step].options);
         }
@@ -179,42 +114,33 @@ window.handleUserInput = function(text) {
 
     order[key] = answer;
     calculateTotal();
-    updateOrderSummary(order);
+    if (window.updateOrderSummary) window.updateOrderSummary(order);
 
     if (correctionMode) {
         correctionMode = false;
         waitingForField = false;
         step = questions.length;
-
         reply("Your answer has been updated!");
         showOrder();
         return;
     }
 
     step++;
-
-    if (step < questions.length) {
-        askQuestion();
-    } else {
-        showOrder();
-    }
+    if (step < questions.length) askQuestion();
+    else showOrder();
 };
 
 window.beginCorrection = function() {
     if (conversationPaused) return;
-
     if (Object.keys(order).length === 0) {
         reply("Please start your order first.");
         return;
     }
-
     correctionMode = true;
     waitingForField = false;
-
     if (typeof window.updateSuggestions === "function") {
         window.updateSuggestions(["Drink", "Size", "Milk", "Temperature", "Extras", "Quantity", "PickupTime", "PaymentMethod"]);
     }
-
     reply("What would you like to change? Enter drink, size, milk, temperature, extras, quantity, pickupTime, or paymentMethod.");
 };
 
@@ -224,15 +150,10 @@ window.resetConversation = function() {
     correctionMode = false;
     waitingForField = false;
     conversationPaused = false;
-
-    updateOrderSummary(order);
-    reply("Let's start a new order!");
+    if (window.updateOrderSummary) window.updateOrderSummary(order);
     askQuestion();
 };
 
 window.onPauseChanged = function(paused) {
     conversationPaused = paused;
 };
-
-// Initialize an empty order summary on load
-updateOrderSummary(order);
